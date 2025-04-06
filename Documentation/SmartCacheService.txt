@@ -1,0 +1,21 @@
+Objetivo del SmartCacheService
+Este servicio se encargará de:
+Generar claves únicas por:
+
+Usuario/Sesión
+
+Path del endpoint
+
+Query string
+
+Cuerpo de la request (opcional)
+
+Cachear resultados si son exitosos (2XX).
+
+Exponer métodos como:
+
+TryGetCachedResponseAsync(...)
+
+CacheResponseAsync(...)
+
+Internamente usa IMemoryCache.

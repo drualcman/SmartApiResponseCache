@@ -1,0 +1,40 @@
+Idea:
+Crear un Smart In-Memory Cache Middleware con conciencia de sesión y endpoint, y sí: aunque hay muchos paquetes NuGet y servicios que ofrecen caching, no hay uno exactamente con ese comportamiento que tú describes de forma integrada y lista para usar, al menos no con todas esas reglas combinadas (especialmente la parte de por sesión y por endpoint con inputs).
+
+1. Cuando recibe un request almacene la session y los datos solicitados.
+2. Ejecute el codigo y obtenga un resultado
+3. Si es un 2XX almacene el resultado en la cache por X tiempo (normalmente segundos)
+4. En el siguiente request, si es del mismo usuario y con la misma solicitud, que verifique si hay datos en la cache
+5. Si hay datos que devuelva la cache.
+
+Puntos a tener en cuenta del servicio
+
+1. Como ya mencione debe de saber que session y que datos se estan pidiento
+2. Debe de saber qeu endpoint esta siendo llamado, ya que podria dar la casualidad que los mismo datos se usen en diferentes endpoints
+
+Funciones adicionales
+
+1. Tener un medio para invalidar la cache si el programado no quiere que ese endpoint tenga cache, ya que va a ser un servicio que se meteria SIEMPRE en cada request
+2. Tener un medio para cambiar el tiempo por defecto que se guarda la cache, por ejempo si por defecto se guarda durante 5 segundos que el programador pueda extenderlo a 3600 segundos o bajarlo a 1 segundo.
+
+¿Qué diferencia tu idea?
+Cache por sesión + input + endpoint.
+
+Solo cachear si el resultado fue exitoso (2XX).
+
+Desacoplar lógica del desarrollador, que no tenga que escribir [CacheThisResponse], sino que funcione automático.
+
+¿Cómo podrías funciona?
+1. Middleware personalizado
+Que actúe antes y después de ejecutar el endpoint.
+
+2. Lógica para generar la clave
+string key = $"{context.User?.Identity?.Name}_{context.Request.Path}_{context.Request.QueryString}";
+
+3. Validación condicional
+if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
+{
+    // Cachear resultado
+}
+
+4. Uso de IMemoryCache como backend

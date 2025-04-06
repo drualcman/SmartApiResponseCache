@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartApiResponseCache.API", "demo\SmartApiResponseCache.API\SmartApiResponseCache.API.csproj", "{AFD9B664-A45C-4CB8-81BA-C27053302223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartApiResponseCache.Middleware", "src\SmartApiResponseCache.Middleware\SmartApiResponseCache.Middleware.csproj", "{47CF30EC-FB5B-4632-923B-B60B195625FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFD9B664-A45C-4CB8-81BA-C27053302223}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFD9B664-A45C-4CB8-81BA-C27053302223}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFD9B664-A45C-4CB8-81BA-C27053302223}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFD9B664-A45C-4CB8-81BA-C27053302223}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47CF30EC-FB5B-4632-923B-B60B195625FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47CF30EC-FB5B-4632-923B-B60B195625FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47CF30EC-FB5B-4632-923B-B60B195625FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47CF30EC-FB5B-4632-923B-B60B195625FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {52258CD1-002B-42D6-8E51-A0DCC82F95BE}
+	EndGlobalSection
+EndGlobal

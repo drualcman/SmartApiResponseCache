@@ -1,0 +1,8 @@
+﻿namespace SmartApiResponseCache.Middleware.Options;
+public class SmartCacheOptions
+{
+    public static string SectionKey = nameof(SmartCacheOptions);
+    public int DefaultCacheDurationSeconds { get; set; } = 5;
+    public bool IsCacheEnabled { get; set; } = true;
+}
+

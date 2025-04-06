@@ -1,0 +1,67 @@
+Qué necesitamos
+Middleware personalizado que:
+
+Se ejecute antes del endpoint para intentar devolver la cache.
+
+Se ejecute después del endpoint para almacenar la respuesta si fue exitosa.
+
+Servicio de cache:
+
+Basado en IMemoryCache.
+
+Genera claves únicas por: sesión + endpoint + parámetros.
+
+Guarda el cuerpo serializado de la respuesta (application/json).
+
+Configuración por endpoint:
+
+A través de atributos ([DisableCache], [CacheDuration(60)]) para MVC.
+
+Y extensiones tipo .WithCacheOptions() para Minimal API.
+
+Soporte para sesión:
+
+Usamos HttpContext.User.Identity.Name si está autenticado.
+
+Si no, una combinación de IP + headers únicos.
+
+
+Estructura inicial de archivos
+SmartApiResponseCache.Middleware/
+│
+├── Middleware/
+│   └── SmartCacheMiddleware.cs
+│
+├── Services/
+│   └── SmartCacheService.cs
+│
+├── Attributes/
+│   ├── DisableCacheAttribute.cs
+│   └── CacheDurationAttribute.cs
+│
+├── Extensions/
+│   └── EndpointCacheExtensions.cs
+│
+├── Interfaces/
+│   └── ISmartCacheService.cs
+│
+└── SmartCacheOptions.cs
+
+
+Startup.cs o Program.cs
+   └── Registro del middleware y del servicio
+
+
+Organización de proyectos
+✅ Proyecto: SmartApiResponseCache.Middleware
+Es correcto que todo lo que vayamos a empaquetar y publicar como NuGet esté en este proyecto.
+
+Dentro de este proyecto irán:
+
+El middleware,
+
+Los atributos (como [DisableCache]),
+
+El servicio de cache (SmartCacheService),
+
+Y las extensiones de configuración para Minimal API y MVC.
