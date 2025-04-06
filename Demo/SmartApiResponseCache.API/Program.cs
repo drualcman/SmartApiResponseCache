@@ -1,4 +1,5 @@
 using SmartApiResponseCache.Middleware.Extensions;
+using SmartApiResponseCache.Middleware.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,13 +9,12 @@ builder.Services.AddOpenApi(options =>
 {
     options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0;
 });
-builder.Services.AddSmartResponseMemoryCache();
-//Or also can do
-/*
-builder.Services.AddSmartApiResponseCache(
+builder.Services.AddSmartResponseMemoryCache(
     options => builder.Configuration.GetSection(SmartCacheOptions.SectionKey).Bind(options)
     );
-*/
+//Or also can do
+//builder.Services.AddSmartResponseMemoryCache();
+
 
 var app = builder.Build();
 

@@ -8,13 +8,14 @@
 		<Description>SmartApiResponseCache is a middleware for .NET APIs that implements an efficient and flexible HTTP response caching system. It stores successful responses (2XX status codes) by session and request, optimizing performance by avoiding repeated calls to the same endpoints. It supports different storage mechanisms, such as in-memory (default implementation) or Redis u other using interface ISmartCacheService, and allows for customizable cache duration per endpoint. The system also includes cache invalidation options and the ability to disable caching per endpoint when needed.</Description>
 		<Copyright>Free</Copyright>
 		<PackageTags>cache;webapi;netcore webapi cache;memory cache api</PackageTags>
-		<PackageId>BlazorBasics.Charts</PackageId>
-		<Product>BlazorBasics.Charts</Product>
-		<PackageReleaseNotes>Fixed issue with dot position in the Y coordinate. Fixed how to manage labels in X when not enough space.</PackageReleaseNotes>
+		<PackageId>SmartApiResponseCache</PackageId>
+		<Product>SmartApiResponseCache</Product>
+		<PackageReleaseNotes>First release.</PackageReleaseNotes>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/drualcman/SmartApiResponseCache</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>

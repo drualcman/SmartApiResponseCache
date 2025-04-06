@@ -1,4 +1,3 @@
-
 # SmartApiResponseCache
 
 `SmartApiResponseCache` is a flexible and efficient middleware for .NET APIs that implements HTTP response caching. It stores successful responses (2XX status codes) based on session and request data, improving API performance by avoiding repeated calls to the same endpoints. The cache can be stored in-memory or in a customizable storage solution like Redis.
@@ -34,6 +33,15 @@ In your `Startup.cs` (or `Program.cs` if using .NET 6+), you will need to add th
 
 You can customize the cache duration and enable/disable the cache via `SmartCacheOptions`.
 
+In appsettings json using `IOptions<SmartCacheOptions>` file like:
+```json
+  "SmartCacheOptions": {
+    "DefaultCacheDurationSeconds": 10,
+    "IsCacheEnabled":  true
+  }
+```
+
+Or directly like:
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
@@ -46,6 +54,15 @@ public void ConfigureServices(IServiceCollection services)
         options.IsCacheEnabled = true;
     });
 }
+
+//minimal api
+builder.Services.AddSmartResponseMemoryCache();
+//Or also can do
+/*
+builder.Services.AddSmartApiResponseCache(
+    options => builder.Configuration.GetSection(SmartCacheOptions.SectionKey).Bind(options)
+    );
+*/
 ```
 
 #### 1.2 Add the Middleware to Your Request Pipeline
@@ -59,6 +76,9 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     
     app.UseSmartApiResponseCache();
 }
+
+//minimal api
+app.UseSmartApiResponseCache();
 ```
 
 ### Step 2: Customizing the Cache Store
@@ -73,6 +93,7 @@ public interface ISmartCacheService
     void CacheResponse<T>(string cacheKey, T response, TimeSpan duration, int statusCode);
 }
 ```
+If you want to customize, don't use the extension method AddSmartResponseMemoryCache() to add into Services and use your own.
 
 #### 2.1 Create Your Custom Cache Service
 
@@ -123,7 +144,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-### Step 3: (Optional) Customize Cache Duration Per Endpoint
+### Step 3.1: (Optional) Customize Cache Duration Per Endpoint
 
 You can control the cache duration for individual endpoints by using the `SmartCacheAttribute` on your controller actions:
 
@@ -133,11 +154,18 @@ public IActionResult GetProducts()
 {
     // Your action logic here
 }
+
+//minimal api
+app.Mapget("/weatherforecast", async () =>
+{
+    ...
+})
+.WithSmartCacheSeconds(10);
 ```
 
 This sets a custom cache duration of 30 seconds for the `GetProducts` action. If not specified, the global default cache duration will be used.
 
-### Step 4: (Optional) Disable Caching for Specific Endpoints
+### Step 3.2: (Optional) Disable Caching for Specific Endpoints
 
 If you want to disable caching for specific endpoints, you can use the `NoSmartCacheAttribute`:
 
@@ -147,9 +175,35 @@ public IActionResult GetNonCachedData()
 {
     // Your action logic here
 }
+
+//minimal api
+app.Mapget("/weatherforecast", async () =>
+{
+    ...
+})
+.WithoutSmartCache(10);
 ```
 
-This will ensure that the response for `GetNonCachedData` will never be cached.
+### Step 3.3: (Optional) Enable Caching for Specific Endpoints
+
+If you has default disable caching, then can enabled for specific endpoints, you can use the `EnabledSmartCacheAttribute`:
+
+```csharp
+[EnabledSmartCacheAttribute]
+public IActionResult GetCachedData()
+{
+    // Your action logic here
+}
+
+//minimal api
+app.Mapget("/weatherforecast", async () =>
+{
+    ...
+})
+.WithSmartCache();
+```
+
+This also if you use `[SmartCacheAttribute]` or `.WithoutSmartCache(10)` will enabled the cache for the endpoint only with the seconds you request.
 
 ## Configuration Options
 
