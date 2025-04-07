@@ -37,4 +37,11 @@ public static class SmartCacheEndpointExtensions
         builder.Add(endpoint => endpoint.Metadata.Add(new NoSmartCacheAttribute()));
         return builder;
     }
+
+    public static IEndpointConventionBuilder SmartCacheIsCaseSensitive(
+        this IEndpointConventionBuilder builder)
+    {
+        builder.Add(endpoint => endpoint.Metadata.Add(new CaseSensitiveAttribute()));
+        return builder;
+    }
 }

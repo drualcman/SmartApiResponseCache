@@ -1,14 +1,23 @@
 ﻿namespace SmartApiResponseCache.Middleware.Helpers;
 internal static class HttpContextHelper
 {
-    public static StringBuilder GenerateKey(this HttpContext context)
+    public static StringBuilder GenerateKey(this HttpContext context, bool isCaseSensitive)
     {
         StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.Append(CreateUserKey(context));
         keyBuilder.Append("|");
-        keyBuilder.Append(context.Request.Path.ToString().ToLowerInvariant());
+        keyBuilder.Append(context.Request.Method.ToUpperInvariant());
         keyBuilder.Append("|");
-        keyBuilder.Append(context.Request.QueryString.ToString().ToLowerInvariant());
+        keyBuilder.Append(context.Request.Scheme.ToLowerInvariant()); // http o https
+        keyBuilder.Append("|");
+        keyBuilder.Append(context.Request.Host.ToString().ToLowerInvariant()); // api.com
+        keyBuilder.Append("|");
+        keyBuilder.Append(context.Request.Path.ToString().ToLowerInvariant()); // /endpoint/1
+        keyBuilder.Append("|");
+        string queryString = context.Request.QueryString.ToString();
+        if(!isCaseSensitive)
+            queryString = queryString.ToLowerInvariant();
+        keyBuilder.Append(queryString);
         return keyBuilder;
     }
 
@@ -31,5 +40,17 @@ internal static class HttpContextHelper
             userKey.Append($"|{context.Request.Headers["User-Agent"].ToString()}");
         }
         return userKey;
+    }
+
+    public static bool ShouldUseCaseSensitiveQuery(this HttpContext context, SmartCacheOptions options)
+    {
+        Endpoint endpoint = context.GetEndpoint();
+        bool result = options.IsQueryStringCaseSensitive;
+        CaseSensitiveAttribute cacheAttr = endpoint?.Metadata.GetMetadata<CaseSensitiveAttribute>();
+        if(cacheAttr != null)
+        {
+            result = true;
+        }
+        return result;
     }
 }

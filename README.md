@@ -9,6 +9,7 @@
 
 - Caches successful responses (2XX status codes).
 - Customizable cache duration per endpoint.
+- Customizable cache case sensitive for query strings for a default or per endpoint.
 - Cache invalidation and disabling options per endpoint.
 - Supports in-memory caching (with the ability to integrate other storage systems such as Redis).
 
@@ -41,7 +42,8 @@ In appsettings json using `IOptions<SmartCacheOptions>` file like:
   "SmartCacheOptions": {
     "DefaultCacheDurationSeconds": 10,
     "IsCacheEnabled":  true,
-    "ContentTypes" : [ "application/json", "application/xml", "text/plain" ]
+    "ContentTypes" : [ "application/json", "application/xml", "text/plain" ],
+    "IsQueryStringCaseSensitive": true
   }
 ```
 
@@ -148,7 +150,26 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-### Step 3.1: (Optional) Customize Cache Duration Per Endpoint
+### Step 3.1: (Optional) Enable Caching for Specific Endpoints
+
+If you has default disable caching, then can enabled for specific endpoints, you can use the `EnabledSmartCacheAttribute`:
+
+```csharp
+[EnabledSmartCacheAttribute]
+public IActionResult GetCachedData()
+{
+    // Your action logic here
+}
+
+//minimal api
+app.Mapget("/weatherforecast", async () =>
+{
+    ...
+})
+.WithSmartCache();
+```
+
+### Step 3.2: (Optional) Customize Cache Duration Per Endpoint
 
 You can control the cache duration for individual endpoints by using the `SmartCacheAttribute` on your controller actions:
 
@@ -169,7 +190,9 @@ app.Mapget("/weatherforecast", async () =>
 
 This sets a custom cache duration of 30 seconds for the `GetProducts` action. If not specified, the global default cache duration will be used.
 
-### Step 3.2: (Optional) Disable Caching for Specific Endpoints
+If you use `[SmartCacheAttribute]` or `.WithoutSmartCache(10)` will enabled the cache for the endpoint only with the seconds you request.
+
+### Step 3.3: (Optional) Disable Caching for Specific Endpoints
 
 If you want to disable caching for specific endpoints, you can use the `NoSmartCacheAttribute`:
 
@@ -185,15 +208,15 @@ app.Mapget("/weatherforecast", async () =>
 {
     ...
 })
-.WithoutSmartCache(10);
+.WithoutSmartCache();
 ```
 
-### Step 3.3: (Optional) Enable Caching for Specific Endpoints
+### Step 3.4: (Optional) Make Caching Case Sensitive for about the QueryString for Specific Endpoints
 
 If you has default disable caching, then can enabled for specific endpoints, you can use the `EnabledSmartCacheAttribute`:
 
 ```csharp
-[EnabledSmartCacheAttribute]
+[CaseSensitiveAttribute]
 public IActionResult GetCachedData()
 {
     // Your action logic here
@@ -204,10 +227,8 @@ app.Mapget("/weatherforecast", async () =>
 {
     ...
 })
-.WithSmartCache();
+.SmartCacheIsCaseSensitive();
 ```
-
-This also if you use `[SmartCacheAttribute]` or `.WithoutSmartCache(10)` will enabled the cache for the endpoint only with the seconds you request.
 
 ## Configuration Options
 
@@ -218,6 +239,7 @@ This class contains the options for configuring the cache middleware:
 - **`DefaultCacheDurationSeconds`**: The default duration (in seconds) for cache entries. Default is `5`.
 - **`IsCacheEnabled`**: A flag that indicates whether caching is enabled globally. Default is `true`.
 - **`ContentTypes`**: Array with cacheable ContentTypes. Don't have default value, but if it's not set should use `[ "application/json", "application/xml", "text/plain" ]`.
+- **`IsQueryStringCaseSensitive`**: A flag that indicates whether caching is CASE SENSITIVE for the query strings globally. Default is `false`.
 
 Example:
 
@@ -228,6 +250,7 @@ public class SmartCacheOptions
     public int DefaultCacheDurationSeconds { get; set; } = 5;
     public bool IsCacheEnabled { get; set; } = true;
     public string[] ContentTypes { get; set; }
+    public bool IsQueryStringCaseSensitive { get; set; } = false;
 }
 ```
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SmartApiResponseCache.Middleware.Extensions;
 using SmartApiResponseCache.Middleware.Options;
 
@@ -50,6 +51,22 @@ app.MapGet("/weatherforecast", async () =>
     return forecast;
 })
 .WithTags("WithSmartCacheDefaultsValues");
+
+app.MapGet("/weatherforecastfiltered", async ([FromQuery] string sumary) =>
+{
+    await Task.Delay(2000);
+    var forecast = Enumerable.Range(1, 5).Select(index =>
+        new WeatherForecast
+        (
+            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Random.Shared.Next(-20, 55),
+            summaries[Random.Shared.Next(summaries.Length)]
+        ))
+        .ToArray();
+    return forecast.Where(s => s.Summary.Equals(sumary, StringComparison.InvariantCultureIgnoreCase));
+})
+.WithTags("WithSmartCacheCaseSensitive")
+.SmartCacheIsCaseSensitive();
 
 app.MapPost("/weatherforecast", async () =>
 {

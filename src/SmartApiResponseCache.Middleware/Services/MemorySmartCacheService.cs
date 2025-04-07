@@ -13,7 +13,8 @@ internal class MemorySmartCacheService : ISmartCacheService
 
     public async Task<string> GenerateCacheKeyAsync(HttpContext context)
     {
-        StringBuilder keyBuilder = context.GenerateKey();
+        bool isQueryCaseSensitive = context.ShouldUseCaseSensitiveQuery(Options);
+        StringBuilder keyBuilder = context.GenerateKey(isQueryCaseSensitive);
         if(context.Request.Method == HttpMethods.Post ||
            context.Request.Method == HttpMethods.Put ||
            context.Request.Method == HttpMethods.Patch)
