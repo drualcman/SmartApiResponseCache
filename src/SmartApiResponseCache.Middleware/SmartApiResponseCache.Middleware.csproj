@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<Authors>Sergi Ortiz Gomez</Authors>
 		<Company>DrUalcman</Company>
 		<Description>SmartApiResponseCache is a middleware for .NET APIs that implements an efficient and flexible HTTP response caching system. It stores successful responses (2XX status codes) by session and request, optimizing performance by avoiding repeated calls to the same endpoints. It supports different storage mechanisms, such as in-memory (default implementation) or Redis u other using interface ISmartCacheService, and allows for customizable cache duration per endpoint. The system also includes cache invalidation options and the ability to disable caching per endpoint when needed.</Description>
@@ -10,7 +10,8 @@
 		<PackageTags>cache;webapi;netcore webapi cache;memory cache api</PackageTags>
 		<PackageId>SmartApiResponseCache</PackageId>
 		<Product>SmartApiResponseCache</Product>
-		<PackageReleaseNotes>First release.</PackageReleaseNotes>
+		<PackageReleaseNotes>
+			Add headers to the cache. Add x-smartapiresponsecache: HIT to the header when cache is HIT. Improve accepting ContentType to be cache. To avoid cache static resources. fixed response body how to store to avoid conversion errors.</PackageReleaseNotes>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/drualcman/SmartApiResponseCache</RepositoryUrl>
@@ -34,8 +35,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'"/>
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.3" Condition="'$(TargetFramework)' == 'net9.0'"/>
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.3" Condition="'$(TargetFramework)' == 'net9.0'" />
 	</ItemGroup>
 
 </Project>

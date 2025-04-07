@@ -1,3 +1,6 @@
+[![Nuget](https://img.shields.io/nuget/v/SmartApiResponseCache?style=for-the-badge)](https://www.nuget.org/packages/SmartApiResponseCache)
+[![Nuget](https://img.shields.io/nuget/dt/SmartApiResponseCache?style=for-the-badge)](https://www.nuget.org/packages/SmartApiResponseCache)
+
 # SmartApiResponseCache
 
 `SmartApiResponseCache` is a flexible and efficient middleware for .NET APIs that implements HTTP response caching. It stores successful responses (2XX status codes) based on session and request data, improving API performance by avoiding repeated calls to the same endpoints. The cache can be stored in-memory or in a customizable storage solution like Redis.
@@ -37,7 +40,8 @@ In appsettings json using `IOptions<SmartCacheOptions>` file like:
 ```json
   "SmartCacheOptions": {
     "DefaultCacheDurationSeconds": 10,
-    "IsCacheEnabled":  true
+    "IsCacheEnabled":  true,
+    "ContentTypes" : [ "application/json", "application/xml", "text/plain" ]
   }
 ```
 
@@ -89,8 +93,8 @@ By default, the middleware uses in-memory caching. However, you can customize th
 public interface ISmartCacheService
 {
     Task<string> GenerateCacheKeyAsync(HttpContext context);
-    bool TryGetCachedResponse<T>(string cacheKey, out T cachedResponse, out int cachedStatusCode);
-    void CacheResponse<T>(string cacheKey, T response, TimeSpan duration, int statusCode);
+    bool TryGetCachedResponse(string cacheKey, out CachedResponseEntry cachedEntry);
+    void CacheResponse(string cacheKey, byte[] response, TimeSpan duration, int statusCode, string contentType, IHeaderDictionary headers);
 }
 ```
 If you want to customize, don't use the extension method AddSmartResponseMemoryCache() to add into Services and use your own.
@@ -114,12 +118,12 @@ public class RedisSmartCacheService : ISmartCacheService
         // Implement your key generation logic here
     }
 
-    public bool TryGetCachedResponse<T>(string cacheKey, out T cachedResponse, out int cachedStatusCode)
+    public bool TryGetCachedResponse(string cacheKey, CachedResponseEntry cachedEntry)
     {
         // Implement your cache retrieval logic here (e.g., using Redis)
     }
 
-    public void CacheResponse<T>(string cacheKey, T response, TimeSpan duration, int statusCode)
+    public void CacheResponse(string cacheKey, byte[] response, TimeSpan duration, int statusCode, string contentType, IHeaderDictionary headers)
     {
         // Implement your cache storage logic here (e.g., saving to Redis)
     }
@@ -213,6 +217,7 @@ This class contains the options for configuring the cache middleware:
 
 - **`DefaultCacheDurationSeconds`**: The default duration (in seconds) for cache entries. Default is `5`.
 - **`IsCacheEnabled`**: A flag that indicates whether caching is enabled globally. Default is `true`.
+- **`ContentTypes`**: Array with cacheable ContentTypes. Don't have default value, but if it's not set should use `[ "application/json", "application/xml", "text/plain" ]`.
 
 Example:
 
@@ -222,6 +227,7 @@ public class SmartCacheOptions
     public static string SectionKey = nameof(SmartCacheOptions);
     public int DefaultCacheDurationSeconds { get; set; } = 5;
     public bool IsCacheEnabled { get; set; } = true;
+    public string[] ContentTypes { get; set; }
 }
 ```
 
@@ -230,8 +236,17 @@ public class SmartCacheOptions
 Implement this interface to create your custom cache store. This allows you to use various caching systems like Redis, SQL, etc.
 
 - **`GenerateCacheKeyAsync`**: Generates a unique cache key for the current HTTP request.
-- **`TryGetCachedResponse<T>`**: Attempts to retrieve a cached response by key.
+- **`TryGetCachedResponse`**: Attempts to retrieve a cached response by key.
 - **`CacheResponse`**: Caches a response with a specified duration and status code.
+
+### `CachedResponseEntry`
+
+Store the data to be cache.
+
+- **`Body`**: HTTP response body bytes.
+- **`StatusCode`**: HTTP response status.
+- **`ContentType`**: HTTP response ContentType.
+- **`Headers`**: HTTP response Headers. When cache is hit should add `x-smartapiresponsecache: HIT`.
 
 ## Troubleshooting
 

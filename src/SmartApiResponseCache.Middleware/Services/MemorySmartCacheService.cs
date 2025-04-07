@@ -2,11 +2,13 @@
 
 internal class MemorySmartCacheService : ISmartCacheService
 {
-    private readonly IMemoryCache _cache;
+    private readonly IMemoryCache Cache;
+    private readonly SmartCacheOptions Options;
 
-    public MemorySmartCacheService(IMemoryCache cache)
+    public MemorySmartCacheService(IMemoryCache cache, IOptions<SmartCacheOptions> options)
     {
-        _cache = cache;
+        Cache = cache;
+        Options = options.Value;
     }
 
     public async Task<string> GenerateCacheKeyAsync(HttpContext context)
@@ -29,29 +31,47 @@ internal class MemorySmartCacheService : ISmartCacheService
         return cacheKey;
     }
 
-
-    public bool TryGetCachedResponse<T>(string cacheKey, out T cachedResponse, out int cachedStatusCode)
+    public bool TryGetCachedResponse(string cacheKey, out CachedResponseEntry cachedEntry)
     {
-        cachedResponse = default;
-        cachedStatusCode = StatusCodes.Status200OK;
+        cachedEntry = null;
         bool result = false;
-        if(_cache.TryGetValue(cacheKey, out string response))
+        if(Cache.TryGetValue(cacheKey, out string json))
         {
-            cachedResponse = JsonSerializer.Deserialize<T>(response);
-            cachedStatusCode = JsonSerializer.Deserialize<int>(_cache.Get(cacheKey + "_statusCode").ToString());
-            result = true;
+            cachedEntry = JsonSerializer.Deserialize<CachedResponseEntry>(json);
+            result = cachedEntry != null;
         }
         return result;
     }
 
-    public void CacheResponse<T>(string cacheKey, T response, TimeSpan duration, int statusCode)
+    public void CacheResponse(string cacheKey, byte[] response, TimeSpan duration,
+        int statusCode, string contentType, IHeaderDictionary headers)
     {
-        string responseBody = JsonSerializer.Serialize(response);
-        MemoryCacheEntryOptions options = new MemoryCacheEntryOptions
+        if(IsDataContentType(contentType))
         {
-            AbsoluteExpirationRelativeToNow = duration
-        };
-        _cache.Set(cacheKey, responseBody, options);
-        _cache.Set(cacheKey + "_statusCode", statusCode, options);
+            Dictionary<string, string[]> headerMap = headers
+                .Where(h => !string.Equals(h.Key, "Set-Cookie", StringComparison.OrdinalIgnoreCase))
+           .ToDictionary(h => h.Key, h => h.Value.ToArray());
+
+            CachedResponseEntry entry = new CachedResponseEntry
+            {
+                Body = response,
+                StatusCode = statusCode,
+                ContentType = contentType,
+                Headers = headerMap
+            };
+            MemoryCacheEntryOptions options = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = duration
+            };
+            Cache.Set(cacheKey, JsonSerializer.Serialize(entry), options);
+        }
+    }
+
+    private bool IsDataContentType(string contentType)
+    {
+        string[] dataContentTypes = Options?.ContentTypes?.Any() ?? false
+            ? Options.ContentTypes
+            : ["application/json", "application/xml", "text/plain"];
+        return dataContentTypes.Any(type => contentType.StartsWith(type, StringComparison.OrdinalIgnoreCase));
     }
 }
