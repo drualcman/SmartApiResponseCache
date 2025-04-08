@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<Authors>Sergi Ortiz Gomez</Authors>
 		<Company>DrUalcman</Company>
 		<Description>SmartApiResponseCache is a middleware for .NET APIs that implements an efficient and flexible HTTP response caching system. It stores successful responses (2XX status codes) by session and request, optimizing performance by avoiding repeated calls to the same endpoints. It supports different storage mechanisms, such as in-memory (default implementation) or Redis u other using interface ISmartCacheService, and allows for customizable cache duration per endpoint. The system also includes cache invalidation options and the ability to disable caching per endpoint when needed.</Description>
@@ -10,7 +10,7 @@
 		<PackageTags>cache;webapi;netcore webapi cache;memory cache api</PackageTags>
 		<PackageId>SmartApiResponseCache</PackageId>
 		<Product>SmartApiResponseCache</Product>
-		<PackageReleaseNotes>Add new option to set case sensitive the QueryString in the endpoints. Change how to build GenerateKey.</PackageReleaseNotes>
+		<PackageReleaseNotes>Improve extensibility and add interfaces (ICacheKeyGenerator, IHeaderKeyGenerator, IUserKeyGenerator) for can customize each step in the CacheKey to identify the cache. Have a default handlers. Improved Cache using also Response Headers.</PackageReleaseNotes>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/drualcman/SmartApiResponseCache</RepositoryUrl>

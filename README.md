@@ -12,6 +12,7 @@
 - Customizable cache case sensitive for query strings for a default or per endpoint.
 - Cache invalidation and disabling options per endpoint.
 - Supports in-memory caching (with the ability to integrate other storage systems such as Redis).
+- Customizable to match your project requirements
 
 ## Installation
 
@@ -101,7 +102,7 @@ public interface ISmartCacheService
 ```
 If you want to customize, don't use the extension method AddSmartResponseMemoryCache() to add into Services and use your own.
 
-#### 2.1 Create Your Custom Cache Service
+#### 2.1.1 Create Your Custom Cache Service
 
 For example, if you want to use Redis as a storage solution, implement the `ISmartCacheService` interface to interact with Redis:
 
@@ -109,15 +110,19 @@ For example, if you want to use Redis as a storage solution, implement the `ISma
 public class RedisSmartCacheService : ISmartCacheService
 {
     private readonly IConnectionMultiplexer _redisConnection;
+    private readonly ICacheKeyGenerator CacheKeyGenerator
     
-    public RedisSmartCacheService(IConnectionMultiplexer redisConnection)
+    public RedisSmartCacheService(IConnectionMultiplexer redisConnection, ICacheKeyGenerator cacheKeyGenerator)
     {
         _redisConnection = redisConnection;
     }
 
     public async Task<string> GenerateCacheKeyAsync(HttpContext context)
     {
+        string keyBuilder = await CacheKeyGenerator.GenerateKey(context);
+        string myKey;
         // Implement your key generation logic here
+        return myKey;
     }
 
     public bool TryGetCachedResponse(string cacheKey, CachedResponseEntry cachedEntry)
@@ -132,21 +137,92 @@ public class RedisSmartCacheService : ISmartCacheService
 }
 ```
 
-#### 2.2 Register Your Custom Cache Service
+You can use the `ICacheKeyGenerator` or not.
 
-Replace the default cache service with your custom implementation in the `ConfigureServices` method:
+#### 2.1.2 Register Your Custom Cache Service
+
+Replace the default service with your custom implementation in the `ConfigureServices` method:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddSmartResponseMemoryCache(options =>
-    {
-        options.DefaultCacheDurationSeconds = 10;
-        options.IsCacheEnabled = true;
-    });
-
-    // Register custom cache service (e.g., Redis)
     services.AddSingleton<ISmartCacheService, RedisSmartCacheService>();
+}
+```
+
+#### 2.2.1 Create Your Custom Cache Key Generator
+
+For example, if you want to change how the key is generated, implement the `ICacheKeyGenerator` interface to interact with:
+
+```csharp
+public class CustomCacheKeyGeneratorHandler(IHeaderKeyGenerator headerKeyGenerator,
+    IUserKeyGenerator userKeyGenerator, IOptions<SmartCacheOptions> options) : ICacheKeyGenerator
+{
+    public async Task<string> GenerateKey(HttpContext context)
+    {
+        // Implement your key generation logic here
+    }
+}
+```
+
+#### 2.2.2 Register Your Custom Cache Key Generator
+
+Replace the default service with your custom implementation in the `CustomCacheKeyGeneratorHandler` method:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddSingleton<ICacheKeyGenerator, CustomCacheKeyGeneratorHandler>();
+}
+```
+
+#### 2.3.1 Create Your Custom User Key Generator
+
+For example, if you want to change how the user key is generated, implement the `IUserKeyGenerator` interface to interact with:
+
+```csharp
+public class CustomCreateUserKeyHandler : IUserKeyGenerator
+{
+    public string CreateUserKey(HttpContext context)
+    {
+        // Implement your key generation logic here
+    }
+}
+```
+
+#### 2.3.2 Register Your Custom Cache Key Generator
+
+Replace the default service with your custom implementation in the `CustomCreateUserKeyHandler` method:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddSingleton<IUserKeyGenerator, CustomCreateUserKeyHandler>();
+}
+```
+
+#### 2.4.1 Create Your Custom Header Key Generator
+
+For example, if you want to change how the header key is generated, implement the `IHeaderKeyGenerator` interface to interact with:
+
+```csharp
+public class CustomHeadersContextHandlerr : IHeaderKeyGenerator
+{
+    public string AddHeaders(HttpContext context)
+    {
+        // Implement your key generation logic here
+    }
+}
+```
+
+#### 2.4.2 Register Your Custom Cache Key Generator
+
+Replace the default service with your custom implementation in the `CustomHeadersContextHandlerr` method:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddSingleton<IHeaderKeyGenerator, CustomHeadersContextHandlerr>();
 }
 ```
 
@@ -270,6 +346,7 @@ Store the data to be cache.
 - **`StatusCode`**: HTTP response status.
 - **`ContentType`**: HTTP response ContentType.
 - **`Headers`**: HTTP response Headers. When cache is hit should add `x-smartapiresponsecache: HIT`.
+
 
 ## Troubleshooting
 

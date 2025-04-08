@@ -66,6 +66,7 @@ app.MapGet("/weatherforecastfiltered", async ([FromQuery] string sumary) =>
     return forecast.Where(s => s.Summary.Equals(sumary, StringComparison.InvariantCultureIgnoreCase));
 })
 .WithTags("WithSmartCacheCaseSensitive")
+.WithSmartCacheSeconds(2)
 .SmartCacheIsCaseSensitive();
 
 app.MapPost("/weatherforecast", async () =>

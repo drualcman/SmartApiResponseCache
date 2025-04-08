@@ -6,6 +6,7 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.Extensions.Primitives;
 global using SmartApiResponseCache.Middleware;
 global using SmartApiResponseCache.Middleware.Attributes;
+global using SmartApiResponseCache.Middleware.Handlers;
 global using SmartApiResponseCache.Middleware.Helpers;
 global using SmartApiResponseCache.Middleware.Interfaces;
 global using SmartApiResponseCache.Middleware.Models;

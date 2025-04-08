@@ -17,6 +17,9 @@ public static partial class DependencyContainer
         else
             services.Configure(options);
         services.AddMemoryCache();
+        services.AddSingleton<IUserKeyGenerator, CreateUserKeyHandler>();
+        services.AddSingleton<IHeaderKeyGenerator, HeadersContextHandler>();
+        services.AddSingleton<ICacheKeyGenerator, CacheKeyGeneratorHandler>();
         services.AddSingleton<ISmartCacheService, MemorySmartCacheService>();
         return services;
     }

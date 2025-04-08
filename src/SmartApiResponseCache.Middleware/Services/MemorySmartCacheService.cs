@@ -4,30 +4,20 @@ internal class MemorySmartCacheService : ISmartCacheService
 {
     private readonly IMemoryCache Cache;
     private readonly SmartCacheOptions Options;
+    private readonly ICacheKeyGenerator CacheKeyGenerator;
 
-    public MemorySmartCacheService(IMemoryCache cache, IOptions<SmartCacheOptions> options)
+    public MemorySmartCacheService(IMemoryCache cache, IOptions<SmartCacheOptions> options, ICacheKeyGenerator cacheKeyGenerator)
     {
         Cache = cache;
         Options = options.Value;
+        CacheKeyGenerator = cacheKeyGenerator;
     }
 
     public async Task<string> GenerateCacheKeyAsync(HttpContext context)
     {
-        bool isQueryCaseSensitive = context.ShouldUseCaseSensitiveQuery(Options);
-        StringBuilder keyBuilder = context.GenerateKey(isQueryCaseSensitive);
-        if(context.Request.Method == HttpMethods.Post ||
-           context.Request.Method == HttpMethods.Put ||
-           context.Request.Method == HttpMethods.Patch)
-        {
-            context.Request.EnableBuffering();
-            using StreamReader reader = new StreamReader(context.Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
-            string body = await reader.ReadToEndAsync();
-            context.Request.Body.Position = 0;
-            keyBuilder.Append("|");
-            keyBuilder.Append(body);
-        }
+        string keyBuilder = await CacheKeyGenerator.GenerateKey(context);
         using SHA256 sha = SHA256.Create();
-        byte[] hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(keyBuilder.ToString()));
+        byte[] hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(keyBuilder));
         string cacheKey = Convert.ToBase64String(hashBytes);
         return cacheKey;
     }
