@@ -14,4 +14,18 @@ internal static class EndpointHelper
         }
         return shouldCacheable;
     }
+
+
+    public static bool IsHttpMethodValidForEndpoint(this Endpoint endpoint, string method)
+    {
+        bool found = false;
+        foreach(HttpMethodMetadata metadata in endpoint.Metadata.OfType<HttpMethodMetadata>())
+        {
+            if(metadata.HttpMethods.Contains(method, StringComparer.OrdinalIgnoreCase))
+            {
+                found = true;
+            }
+        }
+        return found;
+    }
 }
