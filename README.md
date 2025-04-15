@@ -316,6 +316,7 @@ This class contains the options for configuring the cache middleware:
 - **`IsCacheEnabled`**: A flag that indicates whether caching is enabled globally. Default is `true`.
 - **`ContentTypes`**: Array with cacheable ContentTypes. Don't have default value, but if it's not set should use `[ "application/json", "application/xml", "text/plain" ]`.
 - **`IsQueryStringCaseSensitive`**: A flag that indicates whether caching is CASE SENSITIVE for the query strings globally. Default is `false`.
+- **`ExcludedHeaders`**: Header should be exclude to generate teh cacheKey. Don't have default value but always will exclude  `["Date", "Set-Cookie", "Cache-Control", "Expires", "Pragma", "Last-Modified"]` plus what you add.
 
 Example:
 

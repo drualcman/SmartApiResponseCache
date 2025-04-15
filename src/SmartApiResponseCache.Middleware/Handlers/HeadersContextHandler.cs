@@ -5,16 +5,32 @@ internal class HeadersContextHandler(IOptions<SmartCacheOptions> options) : IHea
     {
         StringBuilder keyBuilder = new();
         bool isCaseSensitive = options.Value.IsQueryStringCaseSensitive;
+        var excludedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Date", "Set-Cookie", "Cache-Control", "Expires", "Pragma", "Last-Modified"
+            };
+
+        if(options?.Value?.ExcludedHeaders != null)
+        {
+            foreach(var header in options.Value.ExcludedHeaders)
+            {
+                excludedHeaders.Add(header);
+            }
+        }
+        Dictionary<string, string[]> headerMap = context.Response.Headers
+            .Where(h => !excludedHeaders.Contains(h.Key))
+            .ToDictionary(h => h.Key, h => h.Value.ToArray());
+
         List<string> headers = new List<string>();
-        foreach(KeyValuePair<string, StringValues> header in context.Request.Headers)
+        foreach(KeyValuePair<string, string[]> header in headerMap)
         {
             string headerKey = isCaseSensitive
                 ? header.Key
                 : header.Key.ToLowerInvariant();
-            List<string> values = header.Value.ToList();
+
             string headerValue = isCaseSensitive
-                ? string.Join(",", values)
-                : string.Join(",", values).ToLowerInvariant();
+                ? string.Join(",", header.Value)
+                : string.Join(",", header.Value).ToLowerInvariant();
             headers.Add($"{headerKey}:{headerValue}");
         }
         headers.Sort();
