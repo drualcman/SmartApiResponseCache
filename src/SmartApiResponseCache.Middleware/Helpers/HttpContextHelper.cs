@@ -21,13 +21,21 @@ internal static class HttpContextHelper
         {
             if(endpoint.ShouldCacheable(options) && endpoint.IsHttpMethodValidForEndpoint(context.Request.Method))
             {
-                string contentType = context.Response.ContentType ?? string.Empty;
-                string[] dataContentTypes = options?.ContentTypes?.Any() ?? false ?
-                    options.ContentTypes :
-                    ["application/json", "application/xml", "text/plain"];
-                result = dataContentTypes.Any(type => contentType.StartsWith(type, StringComparison.OrdinalIgnoreCase));
+                result = true;
+                if(options.ExcludedMethods is not null && options.ExcludedMethods.Any())
+                    result = !options.ExcludedMethods.Any(m => m.Equals(context.Request.Method, StringComparison.OrdinalIgnoreCase));
             }
         }
+        return result;
+    }
+
+    public static bool ShouldContentCacheable(this HttpContext context, SmartCacheOptions options)
+    {
+        string contentType = context.Response.ContentType ?? string.Empty;
+        string[] dataContentTypes = options?.ContentTypes?.Any() ?? false ?
+            options.ContentTypes :
+            ["application/json", "application/xml", "text/plain"];
+        bool result = dataContentTypes.Any(type => contentType.StartsWith(type, StringComparison.OrdinalIgnoreCase));
         return result;
     }
 

@@ -7,5 +7,6 @@ public class SmartCacheOptions
     public string[] ContentTypes { get; set; }
     public bool IsQueryStringCaseSensitive { get; set; } = false;
     public string[] ExcludedHeaders { get; set; }
+    public string[] ExcludedMethods { get; set; }
 }
 

@@ -44,7 +44,9 @@ In appsettings json using `IOptions<SmartCacheOptions>` file like:
     "DefaultCacheDurationSeconds": 10,
     "IsCacheEnabled":  true,
     "ContentTypes" : [ "application/json", "application/xml", "text/plain" ],
-    "IsQueryStringCaseSensitive": true
+    "IsQueryStringCaseSensitive": true,
+    "ExcludedHeaders": ["x-custom-header"],
+    "ExcludedMethods": ["DELETE"]
   }
 ```
 
