@@ -3,8 +3,7 @@
 public static class SmartCacheEndpointExtensions
 {
     public static IEndpointConventionBuilder WithSmartCache(
-        this IEndpointConventionBuilder builder,
-        int durationInSeconds)
+        this IEndpointConventionBuilder builder)
     {
         builder.Add(endpoint =>
         {
