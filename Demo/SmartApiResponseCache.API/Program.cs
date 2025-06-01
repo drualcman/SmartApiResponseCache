@@ -13,6 +13,13 @@ builder.Services.AddOpenApi(options =>
 builder.Services.AddSmartResponseMemoryCache(
     options => builder.Configuration.GetSection(SmartCacheOptions.SectionKey).Bind(options)
     );
+builder.Services.AddWebApiDocumentator(options =>
+{
+    options.ApiName = "Test API";
+    options.Version = "v1";
+    options.Description = "Minimal and traditional controllers to test the SmartCacheMiddleware";
+    options.DocsBaseUrl = "swagger";
+});
 //Or also can do
 //builder.Services.AddSmartResponseMemoryCache();
 
@@ -23,10 +30,7 @@ var app = builder.Build();
 if(app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/openapi/v1.json", "SmartApiResponseCache API demo v1.0");
-    });
+    app.UseWebApiDocumentator();
 }
 
 app.UseSmartApiResponseCache();
